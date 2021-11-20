@@ -1,126 +1,309 @@
 
-//Array fo colors to display as color options 
-let colors =  ['#FFFFFF','#FF0000','#87CEEB','#FFA500','#FFFF00',
-               '#008000','#008080','#808080','#000000','#A52A2A',
-               '#0000FF','#800080','#FFC0CB']
-              
- //             '#8E53A1', '#6ABD46', '#71CCDC', '#F7ED45', '#F7DAAF', '#EC2527', '#F16824', '#CECCCC', '#5A499E', '#06753D', '#024259', '#FDD209', '#7D4829', '#931B1E', '#B44426', '#979797', '#C296C5', '#54B948', '#3C75BB', '#F7ED45', '#E89D5E', '#F26F68', '#F37123', '#676868', '#9060A8', '#169E49', '#3CBEB7', '#FFCD37', '#E5B07D', '#EF3C46', '#FDBE17', '#4E4D4E', '#6B449B', '#BACD3F', '#1890CA', '#FCD55A', '#D8C077', '#A62E32', '#F16A2D', '#343433', '#583E98', '#BA539F', '#9D2482', '#DD64A5', '#DB778D', '#EC4394', '#E0398C', '#68AF46', '#4455A4', '#FBEE34', '#AD732A', '#D91E36', '#F99B2A']
-
-// <div>Icons made by <a href="https://www.flaticon.com/authors/srip" title="srip">srip</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
-
-
 // initialize config variables here
 
+// Pencil Points
+let ppts = [];
 let drawing=false;
+let mymouseDown=false;
 let strokeColor='black';
-let lineWidth=1;
- let coord = { x: 0, y: 0 };
-var lastEvent;
-var mouseDown = false;
+let lineWidth=5;
+let coord = { x: 0, y: 0 };
+let lastX,lastY=0;
+let lastEvent;
+let mouseDown = false;
+let restore_array = [];
+let index=-1;
+let eraser=false;
+let startPosition = {x: 0, y: 0};
+let eraser_width=10;
+let erasing="false"
+
+// let tool="freedraw"
+
 
 // setup config variables and start the program
 
-  const canvas = document.querySelector('#my-canvas')
-  let ctx = canvas.getContext('2d');
+const canvas = document.querySelector('#my-canvas')
+let ctx = canvas.getContext('2d');
 
 //determine the height and the wisth of the canvas
-  ctx.canvas.width = window.innerWidth-60
-  ctx.canvas.height = window.innerHeight-60
+ctx.canvas.width = window.innerWidth-60
+ctx.canvas.height = window.innerHeight-60
 
 // fill the canvas with the specified color
-//not sure why it is not working needs to be fixed
-  ctx.beginPath();
-  ctx.rect(0,0,ctx.canvas.width,ctx.canvas.height);
-  ctx.fillStyle="#FBF5EF";
-  ctx.fill();
+// not sure why it is not working needs to be fixed
+ctx.beginPath();
+ctx.rect(0,0,ctx.canvas.width,ctx.canvas.height);
+// ctx.fillStyle="#FBF5EF";
+// ctx.fill();
 
- 
-  
 
-     function init () { 
- 
-
-// initiating 2D context on it
- 
-  ctx.strokeStyle=strokeColor;
-       ctx.lineWidth=lineWidth;
-       
-};  
-       // wait for the HTML to load
+// wait for the HTML to load
 document.addEventListener('DOMContentLoaded', init);
 document.addEventListener("touchstart", start, false);
-document.addEventListener("touchmove", draw, false);
 document.addEventListener("mousedown", start, false);
+document.addEventListener("touchmove", draw, false);
+document.addEventListener("mousemove", draw, false);
 document.addEventListener("mouseup", stop, false);
+document.addEventListener("touchend", stop, false);
+document.addEventListener("mouseout", stop, false);
 window.addEventListener("resize", resize);
 
+
 resize();
+
+
+//tools eventListener
+document.querySelector("#line").addEventListener('click',drawLine);
+document.querySelector('#eraser').addEventListener('click', eraseImage);
+document.querySelector('#clear').addEventListener('click', clearImage);
+
+
+function init () { 
+    // initiating 2D context on it
+       ctx.strokeStyle=strokeColor;
+       ctx.lineWidth=lineWidth;
+  }
+
 
 function resize() {      
   ctx.canvas.width = window.innerWidth-80
   ctx.canvas.height = window.innerHeight-80
+ 
   }
  
   
-  function reposition(event) {
+function reposition(event) {
   coord.x = event.clientX - canvas.offsetLeft;
   coord.y = event.clientY - canvas.offsetTop;
 }
 
-
 function start(event) {
-   drawing=true;
-  document.addEventListener("mousemove", draw, false);
-  reposition(event);
-}
-
+    drawing=true;
+    mymouseDown=true;
+    document.addEventListener("mousemove", draw, false);
+    document.addEventListener("touchmove", draw, false);
+    reposition(event);
+ } 
+ 
 
 function stop() {
-  document.removeEventListener("mousemove", draw, false);
-}
+    if(drawing){
+      ctx.stroke();
+      ctx.closePath();
+      drawing=false;
+   }
+     document.removeEventListener("mousemove", draw, false);
+  }
+
+
 
 
 function draw(event) {
- if(drawing){
-  //begins or resets a path
-  ctx.beginPath();
-  //specifies the current line width
-  ctx.lineWidth = 2;
-  //style of endcaps for a line
-  ctx.lineCap = "round";
-  ctx.lineJoin ="round";
-  //moves to specified point without creating a line
-  ctx.moveTo(coord.x, coord.y);
-  reposition(event);
-  //adds anew point and creates a line from that point to the last specified point
-  ctx.lineTo(coord.x, coord.y);
-  //draws the path on to the canvas
-  ctx.stroke();
- }
-}
-
-//Function to erase image not working needs to be fixed
-
-function EraseImage(){
-  // bind event handler to clear button
-      document.getElementById('erase').addEventListener('click', ()=>{
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }, false);
-
-}
-
-//Select the color button to display the color swatch
-
-    // document.getElementById("color").addEventListener('click', ChangeColor);
-
-function ChangeColor(){
-  console.log('in')
-   event.preventDefault();
-    colors.map((color) =>{ 
-      console.log(color)
-      document.getElementById('container').innerHTML +=
-      `<div id='color-swatch' style='background: ${color};'></div>`
-    });  
+    if (!drawing) return;
+    if(drawing && mymouseDown){
+     //begins or resets a path
+          ctx.beginPath();
+    //  if (mode!="eraser"){
+            //specifies the current line width
+            const lineWidth = document.querySelector('#myRange').value
+            ctx.lineWidth = lineWidth;
+            //style of endcaps for a line
+            ctx.lineCap = "round";
+            ctx.lineJoin ="round";
+            if(erasing=='true')
+              { ctx.globalCompositeOperation="destination-out";}
+            else{
+                 ctx.globalCompositeOperation="source-over"; 
+                 }
+            //moves to specified point without creating a line
+            ctx.moveTo(coord.x, coord.y);
+            reposition(event);
+            //adds anew point and creates a line from that point to the last specified point
+            ctx.lineTo(coord.x, coord.y);
+            //draws the path on to the canvas
+            ctx.stroke();
+           
+       }
+     lastX=coord.x;
+     lastY=coord.y;
+     console.log(lastX,lastY);
+     event.preventDefault();
+   }
    
+
+
+
+
+
+function drawLine(event){
+  // Tmp canvas is always cleared up before drawing.
+    ctx.clearRect(0, 0, canvas.width,canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(startPosition.x, startPosition.y);
+    ctx.lineTo(event.offsetX,  event.offsetY);
+    ctx.stroke();
+    ctx.closePath();
+
+}
+
+
+
+
+//function to change the strokeSize
+function changeWidth(){
+    ctx.lineWidth = strokes.value
+    console.log(lineWidth);
+}
+
+//Function to erase image 
+function eraseImage(event){
+
+    erasing="true"
+    
+
+//mdn code to clear a portion of the canvas
+//  ctx.beginPath();
+// ctx.fillStyle = '#ff6';
+// ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// // Draw blue triangle
+// ctx.beginPath();
+// ctx.fillStyle = 'blue';
+// ctx.moveTo(20, 20);
+// ctx.lineTo(180, 20);
+// ctx.lineTo(130, 130);
+// ctx.closePath();
+// ctx.fill();
+
+// // Clear part of the canvas
+// ctx.clearRect(10, 10, 120, 100);
+
+}
+//Function to clear image 
+
+
+
+
+  //Color palette
+// let colors;
+// function changeColors(palette) {
+// 	switch(palette.id) {
+// 		case "red":
+// 			colors = "red";
+// 			break;
+// 		case "red1":
+// 			colors = "#F16161";
+// 			break;
+// 		case "red2":
+// 			colors = "#F69FA0";
+// 			break;
+// 		case "orange":
+// 			colors = "orange";
+// 			break;
+// 		case "orange1":
+// 			colors = "#F99F62";
+// 			break;
+// 		case "orange2":
+// 			colors = "#FBB57B";
+// 			break;
+// 		case "blue":
+// 			colors = "#09C2DB";
+// 			break;
+// 		case "blue1":
+// 			colors = "#8BD3DC";
+// 			break;
+// 		case "blue2":
+// 			colors = "#B9E3E8";
+// 			break;
+// 		case "indigo":
+// 			colors = "#0E38AD";
+// 			break;
+// 		case "indigo1":
+// 			colors = "#546AB2";
+// 			break;
+// 		case "indigo2":
+// 			colors = "#9C96C9";
+// 			break;
+// 		case "green":
+// 			colors = "green";
+// 			break;
+// 		case "green1":
+// 			colors = "#97CD7E";
+// 			break;
+// 		case "green2":
+// 			colors = "#C6E2BB";
+// 			break;
+// 		case "black":
+// 			colors = "black";
+// 			break;
+// 		case "black1":
+// 			colors = "#545454";
+// 			break;
+// 		case "black2":
+// 			colors = "#B2B2B2";
+// 			break;
+// 		case "yellow":
+// 			colors = "yellow";
+// 			break;
+// 		case "yellow1":
+// 			colors = "#F7F754";
+// 			break;
+// 		case "yellow2":
+// 			colors ="#F7F4B1";
+// 			break;
+// 		case "purple":
+// 			colors = "#B9509E";
+// 			break;
+// 		case "purple1":
+// 			colors = "#D178B1";
+// 			break;
+// 		case "purple2":
+// 			colors = "#E3ABCE";
+// 			break;
+// 		case "erase":
+// 			colors = "white";
+// 			break;
+// 	}
+// }
+
+//####################### NEW CODE ########################
+
+// const myCanvas = document.querySelector('#my-canvas');
+
+// save sketchpad as png--allows user to continue drawing after downloading
+document.querySelector('#save').addEventListener('click', saveAsPng = () => {
+  const canvas = document.getElementById("my-canvas");
+  canvas.toBlob(function(blob) {
+    try {
+      const downloadLink = document.createElement('a');
+      const dataURL = canvas.toDataURL();
+      downloadLink.href = dataURL;
+      downloadLink.download = 'happy-sketch.png';
+
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      // use the removeChild(downloadLink) if we want to remove the sketch art after it's downloaded
+      // document.body.removeChild(downloadLink);
+
+  } catch (e) {console.log("Blob error: " + e)}
+  }) 
+})
+
+//erase canvas entirely and reload so that user can start a new project
+document.querySelector('#eraser').addEventListener('click', eraseAll = () => {
+  console.log("erase All")
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  window.location.reload()
+})
+
+//little eraser on color palette (just uses background color)
+function littleEraser(){
+  // bind event handler to clear button
+   ctx.strokeStyle = '#f5f5f5';
+   ctx.beginPath();
+   ctx.moveTo(startPosition.x, startPosition.y);
+   ctx.lineTo(offsetX, offsetY);
+   ctx.closePath();
 }
 
