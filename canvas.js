@@ -107,7 +107,7 @@ const changeColors = (event) => {
   document.querySelector('h3').innerHTML = assignedNewColorRGB;
   return ctx.strokeStyle = assignedNewColorRGB;
 }
-document.addEventListener('click', changeColors)
+document.querySelector('.color-panel').addEventListener('click', changeColors)
 
 
 
