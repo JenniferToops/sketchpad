@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title> Canvas Paint App</title>
+    <title>Happy Little Sketchpad App</title>
+    <!-- <link rel="icon" href="favicon.png"> -->
     <link rel="stylesheet" href="canvas.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet"> 
     <script src="https://kit.fontawesome.com/46b13243e4.js" crossorigin="anonymous"></script>
  </head>
  <body>
-    <h1>CANVAS PAINT APP</h1>
+    <h1>HAPPY LITTLE SKETCHPAD APP</h1>
 <div class="container">
 
 <div class="toolbar">
@@ -23,7 +24,7 @@
             </button> -->
         <!-- </li>
     <li> -->
-        <button class="btn" type="button" id="line" data-divbtn="line" title="Line">
+        <button class="btn" type="button" id="line" data-divbtn="line" title="Line" onclick="drawLine()">
             <img src="https://img.icons8.com/ios-filled/20/000000/line.png"/>    
         </button>
     <!-- </li>
@@ -95,7 +96,7 @@
     <div class="palette yellow" id="yellow" onclick="changeColors()"></div>
     <div class="palette yellow1" id="yellow1" onclick="changeColors()"></div>
     <div class="palette yellow2" id="yellow2" onclick="changeColors()"></div>
-    <div class="palette green" id="green" onclick="changeColors()"></div>
+    <div class="palette green" id="green" onclick="changecolors()"></div>
     <div class="palette green1" id="green1" onclick="changeColors()"></div>
     <div class="palette green2" id="green2" onclick="changeColors()"></div>
     <div class="palette blue" id="blue" onclick="changeColors()"></div>
@@ -110,20 +111,21 @@
     <div class="palette black" id="black" onclick="changeColors()"></div>
     <div class="palette black1" id="black1" onclick="changeColors()"></div>
     <div class="palette black2" id="black2" onclick="changeColors()"></div>
-    <div class="palette white" id="erase" onclick="changeColors()">
-        <i class="fas fa-eraser" onclick="littleEraser()"></i>
+    <div class="palette white" id="eraser" onclick="changeColors()">
+        <i class="fas fa-eraser" id="board-eraser"></i>
     </div>
 </div> 
    <!-- </div> -->
     <div id="brushWidth">
        <p>Brush Width</p>
          <form class="input-form">
-           <input type="range" id="myRange" name="amountRange" value="1" min="1" max="50" oninput="this.form.amountInput.value=this.value" onclick="lineWidthRange()">
+           <input type="range" id="myRange" name="amountRange" value="1" min="1" max="50" oninput="this.form.amountInput.value=this.value">
            <!-- <div id="sliderInput"> -->
            <input type="number" name="amountInput" min="1" max="50" value="1" oninput="this.form.amountRange.value=this.value" />
            <!-- </div> -->
          </form>
          <br />
+         <h3></h3>
     </div>
 
 </div>
@@ -132,7 +134,7 @@
 <div class="right-panel">
    
         <canvas id="my-canvas"></canvas>
-   
+
 </div>
 
 </div>  

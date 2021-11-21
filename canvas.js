@@ -30,6 +30,8 @@ let ctx = canvas.getContext('2d');
 ctx.canvas.width = window.innerWidth-60
 ctx.canvas.height = window.innerHeight-60
 
+
+
 // fill the canvas with the specified color
 // not sure why it is not working needs to be fixed
 ctx.beginPath();
@@ -56,7 +58,7 @@ resize();
 //tools eventListener
 document.querySelector("#line").addEventListener('click',drawLine);
 document.querySelector('#eraser').addEventListener('click', eraseImage);
-document.querySelector('#clear').addEventListener('click', clearImage);
+// document.querySelector('#clear').addEventListener('click', clearImage);
 
 
 function init () { 
@@ -85,7 +87,6 @@ function start(event) {
     document.addEventListener("touchmove", draw, false);
     reposition(event);
  } 
- 
 
 function stop() {
     if(drawing){
@@ -97,18 +98,30 @@ function stop() {
   }
 
 
+//This collects the RGB values in the CSS file so you can assign them to the strokeStyle()
+const changeColors = (event) => {
+  const newColor = event.target.id;
+  console.log(newColor)
+  let assignedNewColorRGB = window.getComputedStyle(document.querySelector(`#${newColor}`), null).getPropertyValue('background-color');
+  console.log(assignedNewColorRGB)
+  document.querySelector('h3').innerHTML = assignedNewColorRGB;
+  return ctx.strokeStyle = assignedNewColorRGB;
+}
+document.addEventListener('click', changeColors)
+
 
 
 function draw(event) {
     if (!drawing) return;
     if(drawing && mymouseDown){
      //begins or resets a path
+          console.log("draw(event) is being fired")
           ctx.beginPath();
     //  if (mode!="eraser"){
             //specifies the current line width
-            const lineWidth = document.querySelector('#myRange').value
+                        const lineWidth = document.querySelector('#myRange').value
             ctx.lineWidth = lineWidth;
-            //style of endcaps for a line
+            //style of endcaps for a lin
             ctx.lineCap = "round";
             ctx.lineJoin ="round";
             if(erasing=='true')
@@ -123,21 +136,16 @@ function draw(event) {
             ctx.lineTo(coord.x, coord.y);
             //draws the path on to the canvas
             ctx.stroke();
-           
        }
      lastX=coord.x;
      lastY=coord.y;
      console.log(lastX,lastY);
      event.preventDefault();
    }
-   
-
-
-
-
 
 function drawLine(event){
   // Tmp canvas is always cleared up before drawing.
+  console.log("drawLine function fired")
     ctx.clearRect(0, 0, canvas.width,canvas.height);
     ctx.beginPath();
     ctx.moveTo(startPosition.x, startPosition.y);
@@ -147,14 +155,6 @@ function drawLine(event){
 
 }
 
-
-
-
-//function to change the strokeSize
-function changeWidth(){
-    ctx.lineWidth = strokes.value
-    console.log(lineWidth);
-}
 
 //Function to erase image 
 function eraseImage(event){
@@ -185,7 +185,7 @@ function eraseImage(event){
 
 
 
-  //Color palette
+  // Color palette
 // let colors;
 // function changeColors(palette) {
 // 	switch(palette.id) {
@@ -273,9 +273,11 @@ function eraseImage(event){
 
 // save sketchpad as png--allows user to continue drawing after downloading
 document.querySelector('#save').addEventListener('click', saveAsPng = () => {
+  console.log("saving")
   const canvas = document.getElementById("my-canvas");
   canvas.toBlob(function(blob) {
     try {
+      console.log("trying to save")
       const downloadLink = document.createElement('a');
       const dataURL = canvas.toDataURL();
       downloadLink.href = dataURL;
@@ -291,19 +293,58 @@ document.querySelector('#save').addEventListener('click', saveAsPng = () => {
 })
 
 //erase canvas entirely and reload so that user can start a new project
-document.querySelector('#eraser').addEventListener('click', eraseAll = () => {
+document.querySelector('#eraser').addEventListener('click', eraseImage = () => {
   console.log("erase All")
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   window.location.reload()
 })
 
 //little eraser on color palette (just uses background color)
-function littleEraser(){
-  // bind event handler to clear button
-   ctx.strokeStyle = '#f5f5f5';
-   ctx.beginPath();
-   ctx.moveTo(startPosition.x, startPosition.y);
-   ctx.lineTo(offsetX, offsetY);
-   ctx.closePath();
-}
+// document.querySelector('#eraser').addEventListener('click', littleEraser = () => {
+//   // bind event handler to clear button
+//   console.log("changing stroke style")
+//    ctx.strokeStyle = '#f5f5f5';
+//    ctx.beginPath();
+//    ctx.moveTo(startPosition.x, startPosition.y);
+//    ctx.lineTo(offsetX, offsetY);
+//    ctx.strokeStyle = '#f5f5f5';
+//    ctx.stroke();
+//    ctx.closePath();
+// })
+
+// create array of palette id's to target their colors
+// const paletteItems = Array.from(document.querySelectorAll('.palette')).map(el => el.id)
+// console.log(paletteItems)
+
+
+// get the id from clicked element to change colors
+// const onClick = (event) => {
+//   const newColor = event.target.id
+//   console.log(newColor)
+// }
+
+
+
+//This collects the RGB values in the CSS file so you can assign them to the strokeStyle()
+// const changeColors = (event) => {
+//   const newColor = event.target.id 
+//   console.log(newColor)
+//   let assignedNewColorRGB = window.getComputedStyle(document.querySelector(`#${newColor}`), null).getPropertyValue('background-color');
+//   console.log(assignedNewColorRGB)
+//   document.querySelector('h3').innerHTML = assignedNewColorRGB;
+// }
+// window.addEventListener('click', changeColors)
+
+
+// document.addEventListener('click', changeColors)
+//this selects the color by id onClick
+// const onClick = (event) => {
+//   const newColor = event.target.id
+//   console.log("this is the id of the new color to plug into the style code: " + newColor)
+// }
+// window.addEventListener('click', onClick)
+
+
+
+
 
